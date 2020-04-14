@@ -9,16 +9,17 @@ addEventListener('fetch', event => {
  */
 async function handleRequest(request) {
   const url = 'https://cfw-takehome.developers.workers.dev/api/variants'
-
-  let response = await fetch(url)
+  
+  let urls, response = await fetch(url)
 
   if(response.ok) {
-    console.log("Response")
-    let payload = await response.json()
-    console.log(payload.variants[0], payload.variants[1])
+    urls = await response.json()
+    console.log(urls.variants[0], urls.variants[1])
   }
 
-  return new Response("Response of Handle Request", {
-    headers: { 'content-type': 'text/plain' },
-  });
+  let prevUrl = 1
+  let displayThisUrl = urls.variants[prevUrl]
+  let urlResponse = await fetch(displayThisUrl)
+
+  return new Response(urlResponse.body);
 }
