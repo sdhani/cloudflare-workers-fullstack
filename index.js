@@ -1,12 +1,14 @@
 /* 
-  ./index.js 
+  index.js 
   Author: Shania Dhani
   Last Modified: April 15th 2020 
 */
 
+
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
+
 
 /**
  * Fetch Variant URLs 
@@ -70,9 +72,7 @@ async function handleRequest(request) {
   /* Get last URL index displayed to user */
   let currentIndexUrl = request.headers.get('Cookie')
   
-  /* If user hasn't visited the site yet, use A/B Testing style 
-     to assign user a variant, else assign user persisted variant
-  */
+  /* If user hasn't visited the site yet, use A/B Testing style to assign user a variant */
   if(currentIndexUrl === null){
     currentIndexUrl = Math.floor(Math.random() * 2)
   } 
@@ -80,14 +80,22 @@ async function handleRequest(request) {
   /* Fetch Variant URL object */
   let currentUrl = variantUrls.variants[currentIndexUrl]
   let variant = await fetch(currentUrl) 
-  let body = variant.body;
 
-  /* Create Response Variant */
-  let response = new Response(body, {
-    headers: { 'Set-Cookie': previous = currentIndexUrl },
-  });
+  if(variant.ok){
+    let body = variant.body;
 
-  /* Return transformed Response */
-  return changeVariant(response) 
+    /* Create Response Variant */
+    let response = new Response(body, {
+      headers: { 'Set-Cookie': previous = currentIndexUrl },
+    });
+
+    /* Return transformed Response */
+    return changeVariant(response) 
+    
+  } else {
+    return new Response(`The variant fetch failed`, {
+      headers: { 'Set-Cookie': previous = currentIndexUrl },
+    }); 
+  }
 }
 
