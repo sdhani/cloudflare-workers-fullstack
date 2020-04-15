@@ -18,16 +18,16 @@ addEventListener('fetch', event => {
 async function getVariants(url){
   let getVariants = await fetch(url)
 
-  if(getVariants.ok) { 
-    return await getVariants.json() 
-  } else { 
-    return new Error("Fetch Variant URLs failed") 
+  if(!getVariants) {
+    return new Response("Fetch variant urls failed")
+  } else {
+    return getVariants
   }
 }
 
 
 /**
- * Transform Variant oldVariant. Return new Variant 
+ * Transform variant 
  *  @param oldVariant  
  *  @returns newVariant
  */
@@ -50,12 +50,12 @@ async function changeVariant(oldVariant) {
     })
     .on('a', {
       element(element) {
-        element.setAttribute("href", "https://hunter-college-ossd-spr-2020.github.io/sdhani-weekly/contributions/");
+        element.setAttribute("href", "https://hunter-college-ossd-spr-2020.github.io/sdhani-weekly/contributions/")
         element.setInnerContent(`Open Source Contributions`)
       }
     })
     .transform(oldVariant)
-  
+
   return newVariant
 }
 
@@ -67,35 +67,45 @@ async function changeVariant(oldVariant) {
  */
 async function handleRequest(request) {
   const url = 'https://cfw-takehome.developers.workers.dev/api/variants'
-  let variantUrls = await getVariants(url)
+  let variantUrls, cookieHeader = {}
+  let rawVariantUrls = await getVariants(url)
 
-  /* Get last URL index displayed to user */
-  let currentIndexUrl = request.headers.get('Cookie')
+  if(rawVariantUrls.ok) { 
+    variantUrls = await rawVariantUrls.json()
+  }
   
-  /* If user hasn't visited the site yet, use A/B Testing style to assign user a variant */
-  if(currentIndexUrl === null){
-    currentIndexUrl = Math.floor(Math.random() * 2)
-  } 
+  /* Get last URL index displayed to user */
+  if(request.headers.get('Cookie')){
+    /* Parse cookie header return */
+    request.headers.get("Cookie").split(';').forEach(element => {
+      let [key,value] = element.split('=')
+      cookieHeader[key.trim()] = value
+    })
+  }
 
+  /* If user hasn't visited the site yet, use A/B Testing style to
+     assign user a variant, else assign user previous variant used. */
+  let currentIndexUrl = (cookieHeader["previous"]) 
+    ? cookieHeader["previous"] 
+    : Math.floor(Math.random() * 2)
+  
   /* Fetch Variant URL object */
-  let currentUrl = variantUrls.variants[currentIndexUrl]
+  let currentUrl = await variantUrls.variants[currentIndexUrl]
   let variant = await fetch(currentUrl) 
 
   if(variant.ok){
-    let body = variant.body;
+    let body = variant.body
 
     /* Create Response Variant */
-    let response = new Response(body, {
-      headers: { 'Set-Cookie': previous = currentIndexUrl },
-    });
-
+    let originalResponse = new Response(body, {
+      headers: { 'Set-Cookie': `previous = ${currentIndexUrl}` },
+    })
+  
     /* Return transformed Response */
-    return changeVariant(response) 
-    
-  } else {
-    return new Response(`The variant fetch failed`, {
-      headers: { 'Set-Cookie': previous = currentIndexUrl },
-    }); 
+    return changeVariant(originalResponse)
+
+  } else { /* Fetch variant url failed */
+    return new Response("Fetch Variant operation failed.", {status:500})
   }
 }
 

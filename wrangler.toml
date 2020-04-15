@@ -1,6 +1,6 @@
 name = "cloudflare-fullstack-app2020"
 type = "javascript"
-account_id = ""
+account_id = "41580d90e8259b92f0291af3ebc09d6f"
 workers_dev = true
 route = ""
 zone_id = ""
