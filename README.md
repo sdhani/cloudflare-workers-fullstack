@@ -1,4 +1,4 @@
-## [Cloudflare Internship Fullstack Application](https://cloudflare-fullstack-app2020.sdhani.workers.dev/)
+## [Cloudflare Workers Fullstack](https://cloudflare-fullstack-app2020.sdhani.workers.dev/)
 
 Link to Demo: https://cloudflare-fullstack-app2020.sdhani.workers.dev/
 
