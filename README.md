@@ -1,7 +1,5 @@
 ## [Cloudflare Internship Fullstack Application](https://cloudflare-fullstack-app2020.sdhani.workers.dev/)
 
-**Author: Shania Dhani**
-
 Link to Demo: https://cloudflare-fullstack-app2020.sdhani.workers.dev/
 
 ## [Project Prompt](https://github.com/cloudflare-internship-2020/internship-application-fullstack)  :chart_with_upwards_trend:
